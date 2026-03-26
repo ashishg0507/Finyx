@@ -6,6 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [token, setTokenState] = useState(getToken())
   const [user, setUser] = useState(null)
+  const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -20,11 +21,15 @@ export function AuthProvider({ children }) {
       }
       try {
         const data = await apiFetch('/api/auth/me')
-        if (!cancelled) setUser(data.user)
+        if (!cancelled) {
+          setUser(data.user)
+          setSubscription(data.subscription || null)
+        }
       } catch {
         setToken('')
         setTokenState('')
         if (!cancelled) setUser(null)
+        if (!cancelled) setSubscription(null)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -35,11 +40,27 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const refreshMe = async () => {
+    const t = getToken()
+    if (!t) {
+      setUser(null)
+      setSubscription(null)
+      return null
+    }
+
+    const data = await apiFetch('/api/auth/me')
+    setUser(data.user)
+    setSubscription(data.subscription || null)
+    return data
+  }
+
   const value = useMemo(
     () => ({
       token,
       user,
+      subscription,
       loading,
+      refreshMe,
       async signup(email, password) {
         const data = await apiFetch('/api/auth/signup', {
           method: 'POST',
@@ -48,6 +69,7 @@ export function AuthProvider({ children }) {
         setToken(data.token)
         setTokenState(data.token)
         setUser(data.user)
+        setSubscription(null)
         return data.user
       },
       async signin(email, password) {
@@ -58,15 +80,17 @@ export function AuthProvider({ children }) {
         setToken(data.token)
         setTokenState(data.token)
         setUser(data.user)
+        setSubscription(null)
         return data.user
       },
       signout() {
         setToken('')
         setTokenState('')
         setUser(null)
+        setSubscription(null)
       },
     }),
-    [token, user, loading],
+    [token, user, subscription, loading],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
