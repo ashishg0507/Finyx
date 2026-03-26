@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { User } from '../models/index.js'
+import { Subscription, User } from '../models/index.js'
 import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
@@ -47,7 +47,14 @@ router.post('/signin', async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   const user = await User.findByPk(req.user.id, { attributes: ['id', 'email', 'createdAt'] })
   if (!user) return res.status(404).json({ error: 'User not found' })
-  return res.json({ user })
+  const subscription = await Subscription.findOne({
+    where: { userId: req.user.id, isActive: true, status: 'paid' },
+    order: [['paidAt', 'DESC']],
+  })
+  return res.json({
+    user,
+    subscription: subscription ? { planId: subscription.planId, status: subscription.status } : null,
+  })
 })
 
 export default router
