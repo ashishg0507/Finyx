@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.js'
 import transactionsRoutes from './routes/transactions.js'
 import budgetsRoutes from './routes/budgets.js'
 import goalsRoutes from './routes/goals.js'
+import paymentsRoutes from './routes/payments.js'
 
 dotenv.config()
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/transactions', transactionsRoutes)
 app.use('/api/budgets', budgetsRoutes)
 app.use('/api/goals', goalsRoutes)
+app.use('/api/payments', paymentsRoutes)
 
 const port = Number(process.env.PORT || 4000)
 
