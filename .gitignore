@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Build output (Vercel builds this on deploy)
+dist/
+
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+server/.env
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db

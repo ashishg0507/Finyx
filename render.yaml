@@ -1,0 +1,13 @@
+# Optional: import this blueprint on Render (New > Blueprint)
+# Or create a Web Service manually with Root Directory = server
+services:
+  - type: web
+    name: finyx-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
