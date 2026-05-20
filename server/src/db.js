@@ -1,7 +1,11 @@
 import dotenv from 'dotenv'
 import { Sequelize } from 'sequelize'
 
-dotenv.config()
+const isTestMode = process.env.FINYX_TEST_MODE === '1'
+
+if (!isTestMode) {
+  dotenv.config()
+}
 
 function parseDatabaseUrl(url) {
   const parsed = new URL(url)
@@ -15,8 +19,12 @@ function parseDatabaseUrl(url) {
 }
 
 function getDbConfig() {
+  if (isTestMode) {
+    return { testMode: true }
+  }
+
   const url = process.env.DATABASE_URL || process.env.MYSQL_URL
-  if (url) return parseDatabaseUrl(url)
+  if (url) return { ...parseDatabaseUrl(url), testMode: false }
 
   return {
     database: process.env.DB_NAME,
@@ -24,6 +32,7 @@ function getDbConfig() {
     password: process.env.DB_PASS,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT || 3306),
+    testMode: false,
   }
 }
 
@@ -43,13 +52,15 @@ function getDialectOptions() {
 
 const db = getDbConfig()
 
-export const sequelize = new Sequelize(db.database, db.username, db.password, {
-  host: db.host,
-  port: db.port,
-  dialect: 'mysql',
-  logging: false,
-  dialectOptions: getDialectOptions(),
-})
+export const sequelize = db.testMode
+  ? new Sequelize({ dialect: 'sqlite', storage: ':memory:', logging: false })
+  : new Sequelize(db.database, db.username, db.password, {
+      host: db.host,
+      port: db.port,
+      dialect: 'mysql',
+      logging: false,
+      dialectOptions: getDialectOptions(),
+    })
 
 export async function testDbConnection() {
   await sequelize.authenticate()

@@ -11,6 +11,9 @@ dist/
 .env.*.local
 server/.env
 
+# Test coverage
+coverage/
+
 # Logs & OS
 *.log
 .DS_Store

@@ -9,7 +9,11 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "firebase:check": "node scripts/firebase-admin-check.mjs"
+    "firebase:check": "node scripts/firebase-admin-check.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -24,6 +28,11 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "razorpay": "^2.9.6",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.0",
+    "vitest": "^3.0.5"
   }
 }
